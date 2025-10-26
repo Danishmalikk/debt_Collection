@@ -1,7 +1,7 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
+import { CaseStatus } from '../enums/case-status.enums';
 
 @Schema({ timestamps: true, collection: 'cases' })
 export class Case {
@@ -32,7 +32,11 @@ export class Case {
   @Prop({ default: 'unassigned' })
   assigned_to: string;
 
-  @Prop({ default: 'new' })
+  @Prop({
+    type: String,
+    enum: Object.values(CaseStatus),
+    default: CaseStatus.Pending,
+  })
   status: string;
 }
 

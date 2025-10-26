@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Case, CaseDocument } from './schemas/case.schema';
 import { RawCase, RawCaseDocument } from './schemas/raw-case.schema';
 import { assignmentRules } from 'src/config/assignment-rules.config';
+import { CaseStatus } from './enums/case-status.enums';
 
 @Injectable()
 export class CasesService {
@@ -13,6 +14,38 @@ export class CasesService {
     @InjectModel(RawCase.name)
     private readonly rawCaseModel: Model<RawCaseDocument>,
   ) {}
+
+  async getAllCases(status?: string, assignedTo?: string) { 
+    const filter: any = {}; 
+
+    if(status) filter.status = status;
+    if(assignedTo) filter.assigned_to = assignedTo;
+
+    return this.caseModel.find(filter).exec();
+  }
+
+  async getCasesByAssignee(assigned_to: string) {
+    return this.caseModel.find({ assigned_to }).exec();
+  }
+
+  async updateCaseStatus(case_id: string, status: string) {
+    const validStatuses = Object.values(CaseStatus);
+    if (!validStatuses.includes(status as CaseStatus)) {
+      throw new BadRequestException(`Invalid status. Valid: ${validStatuses.join(', ')}`);
+    }
+
+    const updatedCase = await this.caseModel.findOneAndUpdate(
+      { case_id },
+      { status },
+      { new: true },
+    );
+
+    if (!updatedCase) {
+      throw new NotFoundException(`Case with ID ${case_id} not found`);
+    }
+
+    return updatedCase;
+  }
 
   // Normalize and validate each record
   private normalizeRecord(record: any) {
