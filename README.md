@@ -1,8 +1,8 @@
-Project Overview
+# Project Overview
 
 A secure backend service (MVP) for debit collection built with NestJS + TypeScript, using MongoDB for persistence. The service focuses on securely storing sensitive payment-related fields (field-level encryption), running collection jobs, and exposing REST APIs for CRUD and operational tasks.
 
-Key features
+# Key features
 
 REST API for customers, payment methods, and collection runs
 
@@ -54,7 +54,7 @@ docker-compose up --build
 
 (See the docker-compose file provided below.)
 
-API (high level)
+# API (high level)
 
 Note: adjust paths/naming to match your implementation.
 
@@ -70,9 +70,9 @@ POST /collections/run — Trigger a one-off collection run
 
 GET /collections/:id — Get collection run status
 
-Include proper RBAC for sensitive endpoints in production.
+# Include proper RBAC for sensitive endpoints in production.
 
-Field encryption
+# Field encryption
 
 Use AES-256-GCM (or AES-256-CBC with HMAC) for authenticated encryption.
 

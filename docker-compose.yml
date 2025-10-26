@@ -1,0 +1,29 @@
+# it not correct file
+
+version: '3.8'
+services:
+api:
+build: .
+command: npm run start:dev
+volumes:
+- ./:/usr/src/app
+- /usr/src/app/node_modules
+ports:
+- '3000:3000'
+env_file: .env
+depends_on:
+- mongo
+- redis
+
+
+mongo:
+image: mongo:6.0
+restart: unless-stopped
+volumes:
+- mongo-data:/data/db
+ports:
+- '27017:27017'
+
+
+volumes:
+mongo-data:
