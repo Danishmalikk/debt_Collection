@@ -8,11 +8,14 @@ export class Case {
   @Prop({ required: true, index: true, unique: true })
   case_id: string;
 
-  @Prop({ required: true })
-  bank_code: string;
+  @Prop()
+  borrower_name_iv?: string;
+
+  @Prop()
+  borrower_name_enc?: string;
 
   @Prop({ required: true })
-  borrower_name: string;
+  bank_code: string;
 
   @Prop({ required: true })
   loan_amount: number;

@@ -1,19 +1,17 @@
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
-export type RawCaseDocument = RawCase & Document;
 
 @Schema({ timestamps: true, collection: 'raw_cases' })
 export class RawCase {
   @Prop({ required: true })
-  source: string;
+  case_id: string;
 
-  @Prop({ required: true })
-  payload: string;
+  @Prop({ type: Object, required: true })
+  payload: Record<string, any>;
 
-  @Prop({ default: {} })
-  meta: string;
+  @Prop({ type: Object, default: {} })
+  meta?: Record<string, any>;
 }
 
+export type RawCaseDocument = RawCase & Document;
 export const RawCaseSchema = SchemaFactory.createForClass(RawCase);

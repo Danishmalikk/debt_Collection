@@ -2,16 +2,16 @@ import {
    Controller,
    Post,
    Body,
-   UploadedFile,
-   UseInterceptors,
-   BadRequestException,
-   HttpCode,
-   HttpStatus,
    Get,
    Query,
    Patch,
-   Param} from '@nestjs/common';
+   Param,
+   UseGuards,
+   Req} from '@nestjs/common';
 import { CasesService } from './cases.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 
 interface CreateUserDto {
@@ -19,6 +19,7 @@ interface CreateUserDto {
   age: number;
 }
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cases')
 export class CasesController {
   private users: CreateUserDto[] = [];
@@ -36,6 +37,7 @@ export class CasesController {
   }
 
   @Get()
+  @Roles('Admin', 'TeamLead', 'Agent')
   async getAllCases(
     @Query('status') status?: string, 
     @Query('assigned_to') assignedTo?: string,
@@ -53,9 +55,10 @@ export class CasesController {
   }
 
   @Patch(':case_id/update-status')
-  async updateStatus(@Param('case_id') caseId: string, @Body('status') status: string) {
-    const update = await this.casesService.updateCaseStatus(caseId, status);
-    return { message: "Status updated successfully",data: update};
+  @Roles('Admin','TeamLead')
+  async updateStatus(@Param('case_id') caseId: string, @Body('status') status: string, @Body('reason') reason?: string, @Req() req?) {
+    const user = req.user || { username: 'system' };
+    return this.casesService.updateCaseStatus(caseId, status, user.userId || user.name, reason);
   }
 
   @Post('upload')
@@ -71,5 +74,11 @@ export class CasesController {
       message: `Processed ${results.length} case(s) successfully.`,
       results,
     };
+  }
+
+  @Get(':case_id/audit')
+  @Roles('Admin','TeamLead')
+  async getAudit(@Param('case_id') caseId: string) {
+    return this.casesService.getAuditForCase(caseId);
   }
 }
